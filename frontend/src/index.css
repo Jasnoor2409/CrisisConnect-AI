@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+/* ── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ── Earth & Ember Design System – CSS Custom Properties ─────────────────── */
+:root {
+  /* Background layers */
+  --color-bg-base:       #0f0e0c;   /* deep charcoal-black */
+  --color-bg-surface:    #1a1915;   /* dark olive-black */
+  --color-bg-elevated:   #232119;   /* card/form surface */
+  --color-bg-border:     #2e2b22;   /* subtle border */
+
+  /* Primary accent – forest/olive green */
+  --color-primary:       #5a7a4a;
+  --color-primary-hover: #6b9158;
+  --color-primary-light: #4a6a3a;
+
+  /* Secondary accent – sage */
+  --color-secondary:     #8a9e78;
+
+  /* Neutral / text */
+  --color-text-primary:  #f0ebe2;   /* warm off-white */
+  --color-text-secondary:#a89e8c;   /* muted warm-gray */
+  --color-text-muted:    #6e6558;
+
+  /* Semantic */
+  --color-success:       #4e8c5a;   /* natural green */
+  --color-warning:       #c47c2a;   /* amber/burnt orange */
+  --color-error:         #9e3d2e;   /* burnt red – reserved for critical */
+  --color-error-light:   #c04a38;
+
+  /* Sand/beige neutral */
+  --color-sand:          #c8b89a;
+}
+
+/* ── Base reset ───────────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── Scrollbar styling ────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-surface); }
+::-webkit-scrollbar-thumb { background: var(--color-bg-border); border-radius: 3px; }
+
+/* ── Focus visible ────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
