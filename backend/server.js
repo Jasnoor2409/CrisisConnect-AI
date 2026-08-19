@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import connectDB from './src/config/db.js';
 import authRoutes from './src/routes/authRoutes.js';
+import incidentRoutes from './src/routes/incidentRoutes.js';
 
 // ── Connect to MongoDB ────────────────────────────────────────────────────────
 connectDB();
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
+app.use('/api/incidents', incidentRoutes);
 
 // ── Health check ──────────────────────────────────────────────────────────────
 app.get('/api/health', (_req, res) => {

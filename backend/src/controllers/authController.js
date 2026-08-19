@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import validator from 'validator';
 import User from '../models/User.js';
 
@@ -134,3 +135,112 @@ export const registerUser = async (req, res) => {
     });
   }
 };
+
+// POST /api/auth/login
+export const loginUser = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // ── 1. Required field presence check ───────────────────────────────────
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and password are required',
+        errors: { general: 'Please enter your email and password' },
+      });
+    }
+
+    // ── 2. Email format check ───────────────────────────────────────────────
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!validator.isEmail(normalizedEmail)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid email format',
+        errors: { email: 'Please enter a valid email address' },
+      });
+    }
+
+    // ── 3. Find user — explicitly select password (schema has select: false) ─
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+    // ── 4. Verify credentials ───────────────────────────────────────────────
+    // Generic 401 — deliberately does NOT reveal whether the email exists
+    const INVALID_CREDENTIALS_MSG = 'Invalid email or password';
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: INVALID_CREDENTIALS_MSG,
+        errors: { general: INVALID_CREDENTIALS_MSG },
+      });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: INVALID_CREDENTIALS_MSG,
+        errors: { general: INVALID_CREDENTIALS_MSG },
+      });
+    }
+
+    // ── 5. Sign JWT ─────────────────────────────────────────────────────────
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // ── 6. Return token + safe user data — NEVER include password or hash ───
+    return res.status(200).json({
+      success: true,
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    // ── 7. Unexpected server error ──────────────────────────────────────────
+    console.error('Login error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error. Please try again later.',
+    });
+  }
+};
+
+// GET /api/auth/me — Verified authenticated user endpoint
+export const getMe = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User account not found or session is invalid.',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('getMe error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Server error fetching user profile.',
+    });
+  }
+};
+
