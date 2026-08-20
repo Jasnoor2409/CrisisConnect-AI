@@ -86,6 +86,21 @@ export default function Navbar() {
                 <span>Report Incident</span>
               </Link>
 
+              {/* My Reports Navigation Button */}
+              <Link
+                to="/my-reports"
+                className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                  location.pathname === '/my-reports'
+                    ? 'bg-[var(--color-bg-elevated)] text-[var(--color-sand)] border border-[var(--color-sand)]/40 shadow-sm'
+                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)] border border-transparent'
+                }`}
+              >
+                <svg className="w-4 h-4 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>My Reports</span>
+              </Link>
+
               {/* User Role Badge */}
               <div
                 className="hidden sm:flex items-center px-2.5 py-1 rounded-full text-xs font-bold tracking-wider border"

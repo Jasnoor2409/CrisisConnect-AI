@@ -6,6 +6,7 @@ import RegisterPage from './pages/RegisterPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import ProfilePage from './pages/ProfilePage.jsx';
 import ReportIncidentPage from './pages/ReportIncidentPage.jsx';
+import MyReportsPage from './pages/MyReportsPage.jsx';
 
 export default function App() {
   return (
@@ -37,6 +38,16 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <ReportIncidentPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Feature 7 & 8: Citizen Incident History & AI Classification Details */}
+              <Route
+                path="/my-reports"
+                element={
+                  <ProtectedRoute>
+                    <MyReportsPage />
                   </ProtectedRoute>
                 }
               />

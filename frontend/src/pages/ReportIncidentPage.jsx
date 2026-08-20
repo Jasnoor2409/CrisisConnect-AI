@@ -163,7 +163,7 @@ export default function ReportIncidentPage() {
               </div>
 
               <div>
-                <span className="text-[var(--color-text-muted)] uppercase font-semibold block">Category</span>
+                <span className="text-[var(--color-text-muted)] uppercase font-semibold block">Selected Category</span>
                 <span className="font-semibold text-sm text-[var(--color-text-primary)]">{submittedIncident.category}</span>
               </div>
 
@@ -179,6 +179,94 @@ export default function ReportIncidentPage() {
                 </span>
               </div>
             </div>
+
+            {/* AI Emergency Analysis & Severity Box */}
+            {submittedIncident.aiClassification && (
+              <div className="bg-[var(--color-bg-surface)] border border-[var(--color-primary)]/40 rounded-xl p-4 space-y-3 mt-2">
+                <div className="flex items-center justify-between border-b border-[var(--color-bg-border)] pb-2">
+                  <span className="text-xs font-bold text-[var(--color-primary)] flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    AI Incident & Severity Analysis
+                  </span>
+                  <span className="font-mono text-[11px] font-bold text-[var(--color-sand)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded border border-[var(--color-primary)]/30">
+                    Category: {Math.round((submittedIncident.aiClassification.confidence || 0) * 100)}% | Severity: {Math.round((submittedIncident.aiClassification.severityConfidence || 0) * 100)}%
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs pt-1">
+                  <div>
+                    <span className="text-[var(--color-text-muted)] uppercase font-semibold text-[10px] block">
+                      AI Predicted Category (vs Reported: {submittedIncident.category})
+                    </span>
+                    <span className="font-bold text-sm text-[var(--color-text-primary)]">
+                      {submittedIncident.aiClassification.category}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-[var(--color-text-muted)] uppercase font-semibold text-[10px] block">
+                      AI Assessed Severity (vs Reported: {submittedIncident.severity})
+                    </span>
+                    <span className={`inline-block font-bold text-sm px-2.5 py-0.5 rounded border mt-0.5 ${
+                      submittedIncident.aiClassification.severity === 'Critical' ? 'bg-red-950/60 text-red-300 border-red-800' :
+                      submittedIncident.aiClassification.severity === 'High' ? 'bg-amber-950/50 text-amber-300 border-amber-800' :
+                      submittedIncident.aiClassification.severity === 'Medium' ? 'bg-yellow-950/40 text-yellow-300 border-yellow-800' :
+                      'bg-emerald-950/40 text-emerald-300 border-emerald-800'
+                    }`}>
+                      {submittedIncident.aiClassification.severity || submittedIncident.severity} Priority
+                    </span>
+                  </div>
+                </div>
+
+                {submittedIncident.aiClassification.reasoning && (
+                  <div className="pt-1">
+                    <span className="text-[var(--color-text-muted)] uppercase font-semibold text-[10px] block">AI Reasoning & Assessment</span>
+                    <p className="text-xs text-[var(--color-text-secondary)] italic bg-[var(--color-bg-elevated)] p-2.5 rounded-lg border border-[var(--color-bg-border)] mt-0.5">
+                      "{submittedIncident.aiClassification.reasoning}"
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Feature 10: AI Safety Recommendations Box */}
+            {submittedIncident.safetyRecommendations && (
+              <div className="bg-[var(--color-bg-surface)] border border-amber-800/40 rounded-xl p-4 space-y-3 mt-2">
+                <div className="flex items-center justify-between border-b border-[var(--color-bg-border)] pb-2">
+                  <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Actionable Safety Recommendations
+                  </span>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)] px-2 py-0.5 rounded bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)]">
+                    {submittedIncident.safetyRecommendations.isFallback ? 'Deterministic Safety Guidance' : 'AI Safety Guidance'}
+                  </span>
+                </div>
+
+                <ul className="space-y-1.5 text-xs text-[var(--color-text-primary)]">
+                  {submittedIncident.safetyRecommendations.recommendations?.map((rec, idx) => (
+                    <li key={idx} className="flex items-start gap-2">
+                      <span className="w-5 h-5 rounded-full bg-amber-950/60 border border-amber-700/50 text-amber-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="leading-snug">{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {submittedIncident.safetyRecommendations.warning && (
+                  <div className="bg-amber-950/30 border border-amber-800/50 rounded-lg p-2.5 text-[11px] text-amber-200/90 flex items-start gap-2 mt-2">
+                    <svg className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{submittedIncident.safetyRecommendations.warning}</span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="pt-2 border-t border-[var(--color-bg-border)]">
               <span className="text-xs text-[var(--color-text-muted)] uppercase font-semibold block">Location</span>
@@ -197,10 +285,10 @@ export default function ReportIncidentPage() {
               Report Another Incident
             </button>
             <Link
-              to="/profile"
-              className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm font-semibold bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-bg-border)] hover:border-[var(--color-primary)] transition-all text-center"
+              to="/my-reports"
+              className="w-full sm:w-auto px-6 py-3 rounded-lg text-sm font-semibold bg-[var(--color-bg-elevated)] text-[var(--color-sand)] border border-[var(--color-sand)]/40 hover:border-[var(--color-sand)] transition-all text-center"
             >
-              View User Profile
+              View My Reports
             </Link>
           </div>
         </div>

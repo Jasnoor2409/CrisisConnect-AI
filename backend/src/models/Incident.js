@@ -78,6 +78,73 @@ const incidentSchema = new mongoose.Schema(
       },
       default: 'reported',
     },
+
+    aiClassification: {
+      category: {
+        type: String,
+        enum: ['Accident', 'Fire', 'Medical Emergency', 'Crime', 'Natural Disaster', 'Other'],
+      },
+      confidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+      },
+      reasoning: {
+        type: String,
+        trim: true,
+      },
+      severity: {
+        type: String,
+        enum: ['Low', 'Medium', 'High', 'Critical'],
+      },
+      severityConfidence: {
+        type: Number,
+        min: 0,
+        max: 1,
+      },
+      severityReasoning: {
+        type: String,
+        trim: true,
+      },
+      classifiedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+
+    aiAssessment: {
+      category: String,
+      categoryConfidence: Number,
+      categoryReasoning: String,
+      severity: String,
+      severityConfidence: Number,
+      severityReasoning: String,
+      assessedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+
+    safetyRecommendations: {
+      recommendations: [
+        {
+          type: String,
+          trim: true,
+        },
+      ],
+      warning: {
+        type: String,
+        trim: true,
+      },
+      isFallback: {
+        type: Boolean,
+        default: false,
+      },
+      generatedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
   },
   {
     timestamps: true,
