@@ -25,22 +25,22 @@ export default function ProfilePage() {
     switch (role) {
       case 'admin':
         return {
-          bg: 'rgba(196, 124, 42, 0.15)',
-          border: 'rgba(196, 124, 42, 0.4)',
-          text: '#e09843',
+          bg: 'rgba(214, 158, 61, 0.18)',
+          border: 'rgba(214, 158, 61, 0.45)',
+          text: '#e6b252',
           label: 'Admin (System Administrator)',
         };
       case 'responder':
         return {
-          bg: 'rgba(90, 122, 74, 0.2)',
-          border: 'rgba(90, 122, 74, 0.5)',
-          text: '#8a9e78',
+          bg: 'rgba(61, 139, 90, 0.22)',
+          border: 'rgba(61, 139, 90, 0.5)',
+          text: '#72be8c',
           label: 'Emergency Responder',
         };
       default:
         return {
-          bg: 'rgba(200, 184, 154, 0.15)',
-          border: 'rgba(200, 184, 154, 0.3)',
+          bg: 'rgba(216, 199, 167, 0.15)',
+          border: 'rgba(216, 199, 167, 0.35)',
           text: 'var(--color-sand)',
           label: 'Citizen User',
         };
@@ -107,7 +107,7 @@ export default function ProfilePage() {
   ];
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex flex-col gap-6">
+    <main className="min-h-[calc(100vh-4rem)] w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 flex flex-col gap-6">
       {/* Page Header (No duplicate logout button) */}
       <div className="border-b border-[var(--color-bg-border)] pb-5">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">
@@ -121,7 +121,7 @@ export default function ProfilePage() {
       {/* User Information Card */}
       <section className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] rounded-xl p-6 shadow-lg w-full">
         <div className="flex items-center gap-4 pb-6 border-b border-[var(--color-bg-border)]">
-          <div className="w-14 h-14 rounded-full bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/40 flex items-center justify-center text-xl font-bold text-[var(--color-primary)] flex-shrink-0">
+          <div className="w-14 h-14 rounded-full bg-[var(--color-sand)]/20 border border-[var(--color-sand)]/40 flex items-center justify-center text-xl font-bold text-[var(--color-sand)] flex-shrink-0">
             {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </div>
           <div>
@@ -177,7 +177,7 @@ export default function ProfilePage() {
       <section className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] rounded-xl p-6 shadow-lg w-full space-y-4">
         <div>
           <h2 className="text-lg font-semibold text-[var(--color-text-primary)] flex items-center gap-2">
-            <svg className="w-5 h-5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
             Role-Based Access Control (RBAC) Verification
@@ -188,7 +188,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Responsive Cards Grid: 1 column on mobile, 3 columns on desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2 items-start">
           {rbacEndpoints.map((ep) => {
             const result = testResults[ep.id];
             const isTesting = testingEndpoint === ep.id;
@@ -229,11 +229,11 @@ export default function ProfilePage() {
                   <button
                     onClick={() => handleTestRbac(ep.id, ep.apiFunc)}
                     disabled={testingEndpoint !== null}
-                    className="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
+                    className="w-full py-2 px-3 rounded-lg text-xs font-bold bg-[var(--color-sand)] text-[#0c1612] hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-all cursor-pointer flex items-center justify-center gap-2 shadow-sm"
                   >
                     {isTesting ? (
                       <>
-                        <div className="w-3 h-3 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                        <div className="w-3 h-3 rounded-full border-2 border-[#0c1612] border-t-transparent animate-spin"></div>
                         Testing...
                       </>
                     ) : (
@@ -245,8 +245,8 @@ export default function ProfilePage() {
                     <div
                       className={`p-3 rounded-lg border text-xs transition-all ${
                         result.success
-                          ? 'bg-emerald-950/40 border-emerald-800/60 text-emerald-200'
-                          : 'bg-red-950/40 border-red-800/60 text-red-200'
+                          ? 'bg-emerald-950/60 border-emerald-800/80 text-emerald-300'
+                          : 'bg-red-950/60 border-red-800/80 text-red-300'
                       }`}
                     >
                       <div className="flex items-center gap-2 font-bold mb-1">

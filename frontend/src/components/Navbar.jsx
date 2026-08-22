@@ -11,27 +11,27 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  // Helper for role badge colors matching Earth & Ember palette
+  // Helper for role badge colors matching Deep Forest + Warm Sand palette
   const getRoleBadgeStyle = (role) => {
     switch (role) {
       case 'admin':
         return {
-          bg: 'rgba(196, 124, 42, 0.15)',
-          border: 'rgba(196, 124, 42, 0.4)',
-          text: '#e09843',
+          bg: 'rgba(214, 158, 61, 0.18)',
+          border: 'rgba(214, 158, 61, 0.45)',
+          text: '#e6b252',
           label: 'ADMIN',
         };
       case 'responder':
         return {
-          bg: 'rgba(90, 122, 74, 0.2)',
-          border: 'rgba(90, 122, 74, 0.5)',
-          text: '#8a9e78',
+          bg: 'rgba(61, 139, 90, 0.22)',
+          border: 'rgba(61, 139, 90, 0.5)',
+          text: '#72be8c',
           label: 'RESPONDER',
         };
       default:
         return {
-          bg: 'rgba(200, 184, 154, 0.15)',
-          border: 'rgba(200, 184, 154, 0.3)',
+          bg: 'rgba(216, 199, 167, 0.15)',
+          border: 'rgba(216, 199, 167, 0.35)',
           text: 'var(--color-sand)',
           label: 'CITIZEN',
         };
@@ -41,8 +41,8 @@ export default function Navbar() {
   const roleStyle = user ? getRoleBadgeStyle(user.role) : null;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-bg-border)] bg-[var(--color-bg-surface)]/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="sticky top-0 z-50 w-full border-b border-[var(--color-bg-border)] bg-[var(--color-bg-surface)]/95 backdrop-blur-md">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 h-16 flex items-center justify-between">
         {/* Brand Logo */}
         <Link to={isAuthenticated ? '/report-incident' : '/login'} className="flex items-center gap-3 group">
           <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/40 flex items-center justify-center text-[var(--color-primary)] font-bold transition-all duration-200 group-hover:bg-[var(--color-primary)]/30">
@@ -62,7 +62,7 @@ export default function Navbar() {
           </div>
           <div className="flex flex-col">
             <span className="font-semibold tracking-wide text-sm sm:text-base text-[var(--color-text-primary)]">
-              CrisisConnect <span className="text-[var(--color-primary)] font-bold">AI</span>
+              CrisisConnect <span className="text-[var(--color-sand)] font-bold">AI</span>
             </span>
           </div>
         </Link>
@@ -76,8 +76,8 @@ export default function Navbar() {
                 to="/report-incident"
                 className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
                   location.pathname === '/report-incident'
-                    ? 'bg-[var(--color-primary)] text-white shadow-sm'
-                    : 'bg-[var(--color-primary)]/15 text-[var(--color-primary)] hover:bg-[var(--color-primary)]/25 border border-[var(--color-primary)]/30'
+                    ? 'bg-[var(--color-sand)] text-[#0c1612] shadow-sm font-bold'
+                    : 'bg-[var(--color-primary)]/15 text-[var(--color-sand)] hover:bg-[var(--color-primary)]/25 border border-[var(--color-primary)]/30'
                 }`}
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -118,12 +118,12 @@ export default function Navbar() {
                 to="/profile"
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 border ${
                   location.pathname === '/profile'
-                    ? 'bg-[var(--color-bg-elevated)] text-[var(--color-primary)] border-[var(--color-primary)]/50'
-                    : 'text-[var(--color-text-primary)] hover:text-[var(--color-primary)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] border-[var(--color-bg-border)] hover:border-[var(--color-primary)]/40'
+                    ? 'bg-[var(--color-bg-elevated)] text-[var(--color-sand)] border-[var(--color-sand)]/50'
+                    : 'text-[var(--color-text-primary)] hover:text-[var(--color-sand)] bg-[var(--color-bg-surface)] hover:bg-[var(--color-bg-elevated)] border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/40'
                 }`}
                 title="View User Profile"
               >
-                <svg className="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
                 <span className="truncate max-w-[120px] sm:max-w-[160px] underline-offset-2 hover:underline">
@@ -134,7 +134,7 @@ export default function Navbar() {
               {/* Single Navbar Logout Button */}
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-red-400 hover:bg-red-950/30 border border-transparent hover:border-red-900/40 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
+                className="px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-red-300 hover:bg-red-950/40 border border-transparent hover:border-red-800/40 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
                 title="Log out of CrisisConnect"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +157,7 @@ export default function Navbar() {
               </Link>
               <Link
                 to="/register"
-                className="px-3.5 py-1.5 rounded-lg text-sm font-medium bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-sm"
+                className="px-3.5 py-1.5 rounded-lg text-sm font-bold bg-[var(--color-sand)] text-[#0c1612] hover:bg-[var(--color-primary-hover)] transition-all duration-200 shadow-sm"
               >
                 Register
               </Link>

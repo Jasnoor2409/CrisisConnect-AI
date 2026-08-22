@@ -197,7 +197,7 @@ export default function RegisterPage() {
   // ─────────────────────────────────────────────────────────────────────────
   return (
     <div
-      className="min-h-screen flex items-center justify-center px-4 py-10"
+      className="min-h-[calc(100vh-4rem)] w-full flex items-center justify-center px-4 py-10"
       style={{ background: 'var(--color-bg-base)' }}
     >
       {/* Background grid texture */}
@@ -220,10 +220,10 @@ export default function RegisterPage() {
             className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border"
             style={{
               background: 'var(--color-bg-elevated)',
-              borderColor: 'var(--color-primary)',
+              borderColor: 'var(--color-sand)',
             }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" style={{ color: 'var(--color-primary)' }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.6" style={{ color: 'var(--color-sand)' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
@@ -235,8 +235,8 @@ export default function RegisterPage() {
             CrisisConnect AI
           </h1>
           <p
-            className="mt-1 text-xs font-medium uppercase tracking-widest"
-            style={{ color: 'var(--color-primary)' }}
+            className="mt-1 text-xs font-semibold uppercase tracking-widest"
+            style={{ color: 'var(--color-sand)' }}
           >
             Emergency Response Platform
           </p>
@@ -271,7 +271,7 @@ export default function RegisterPage() {
               className="mb-5 flex items-start gap-3 rounded-lg border px-4 py-3"
               role="alert"
               style={{
-                background: 'rgba(78,140,90,0.12)',
+                background: 'rgba(61,139,90,0.15)',
                 borderColor: 'var(--color-success)',
               }}
             >
@@ -290,7 +290,7 @@ export default function RegisterPage() {
               className="mb-5 flex items-start gap-3 rounded-lg border px-4 py-3"
               role="alert"
               style={{
-                background: 'rgba(158,61,46,0.12)',
+                background: 'rgba(185,59,59,0.15)',
                 borderColor: 'var(--color-error)',
               }}
             >
@@ -379,13 +379,13 @@ export default function RegisterPage() {
               id="register-submit-btn"
               type="submit"
               disabled={isLoading}
-              className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-1 flex w-full items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-bold transition-all duration-200 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer shadow-md"
               style={{
-                background: isLoading ? 'var(--color-primary-light)' : 'var(--color-primary)',
-                color: 'var(--color-text-primary)',
+                background: isLoading ? 'var(--color-primary-light)' : 'var(--color-sand)',
+                color: '#0c1612',
               }}
               onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.background = 'var(--color-primary-hover)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = isLoading ? 'var(--color-primary-light)' : 'var(--color-primary)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = isLoading ? 'var(--color-primary-light)' : 'var(--color-sand)'; }}
             >
               {isLoading ? (
                 <>

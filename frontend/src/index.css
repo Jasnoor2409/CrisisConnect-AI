@@ -1,37 +1,34 @@
-@import "tailwindcss";
-
 /* ── Google Fonts ─────────────────────────────────────────────────────────── */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
 
-/* ── Earth & Ember Design System – CSS Custom Properties ─────────────────── */
+/* ── Deep Forest + Warm Sand Design System – CSS Custom Properties ─────── */
 :root {
-  /* Background layers */
-  --color-bg-base:       #0f0e0c;   /* deep charcoal-black */
-  --color-bg-surface:    #1a1915;   /* dark olive-black */
-  --color-bg-elevated:   #232119;   /* card/form surface */
-  --color-bg-border:     #2e2b22;   /* subtle border */
+  /* Background layers - Deep Forest & Dark Moss */
+  --color-bg-base:       #0c1612;   /* deep forest green primary background */
+  --color-bg-surface:    #14221c;   /* elevated sections surface */
+  --color-bg-elevated:   #1b2d24;   /* cards, forms & panels dark moss */
+  --color-bg-border:     #273e32;   /* subtle forest border */
 
-  /* Primary accent – forest/olive green */
-  --color-primary:       #5a7a4a;
-  --color-primary-hover: #6b9158;
-  --color-primary-light: #4a6a3a;
+  /* Accent - Warm Sand / Beige */
+  --color-sand:          #d8c7a7;   /* warm sand / beige */
+  --color-primary:       #dfd0b5;   /* warm sand primary accent */
+  --color-primary-hover: #ebdcc2;   /* lighter sand hover */
+  --color-primary-light: #c9b794;   /* muted sand active/disabled */
 
-  /* Secondary accent – sage */
-  --color-secondary:     #8a9e78;
+  /* Secondary accent – Sage */
+  --color-secondary:     #9bb09c;   /* muted sage */
 
   /* Neutral / text */
-  --color-text-primary:  #f0ebe2;   /* warm off-white */
-  --color-text-secondary:#a89e8c;   /* muted warm-gray */
-  --color-text-muted:    #6e6558;
+  --color-text-primary:  #f4f1ea;   /* soft cream primary text */
+  --color-text-secondary:#a5b8a6;   /* muted sage/sand secondary text */
+  --color-text-muted:    #708372;   /* deeper muted sage/sand */
 
   /* Semantic */
-  --color-success:       #4e8c5a;   /* natural green */
-  --color-warning:       #c47c2a;   /* amber/burnt orange */
-  --color-error:         #9e3d2e;   /* burnt red – reserved for critical */
-  --color-error-light:   #c04a38;
-
-  /* Sand/beige neutral */
-  --color-sand:          #c8b89a;
+  --color-success:       #3d8b5a;   /* natural green */
+  --color-warning:       #d69e3d;   /* muted amber */
+  --color-error:         #b93b3b;   /* controlled red reserved for critical */
+  --color-error-light:   #d85454;
 }
 
 /* ── Base reset ───────────────────────────────────────────────────────────── */
@@ -45,6 +42,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg-base);
 }
 
 body {
@@ -53,15 +51,26 @@ body {
   color: var(--color-text-primary);
   line-height: 1.6;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* ── Scrollbar styling ────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--color-bg-surface); }
-::-webkit-scrollbar-thumb { background: var(--color-bg-border); border-radius: 3px; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg-base); }
+::-webkit-scrollbar-thumb { background: var(--color-bg-border); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
 /* ── Focus visible ────────────────────────────────────────────────────────── */
 :focus-visible {
-  outline: 2px solid var(--color-primary);
+  outline: 2px solid var(--color-sand);
   outline-offset: 3px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
 }

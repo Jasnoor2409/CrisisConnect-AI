@@ -6,42 +6,42 @@ import { getMyIncidents } from '../services/incidentService.js';
 const STATUS_CONFIG = {
   reported: {
     label: 'Reported',
-    badgeClass: 'bg-blue-950/40 text-blue-300 border-blue-800/60',
+    badgeClass: 'bg-blue-950/60 text-blue-300 border-blue-800/70',
     dotClass: 'bg-blue-400',
   },
   in_progress: {
     label: 'In Progress',
-    badgeClass: 'bg-amber-950/40 text-amber-300 border-amber-800/60',
+    badgeClass: 'bg-amber-950/60 text-amber-300 border-amber-800/70',
     dotClass: 'bg-amber-400 animate-pulse',
   },
   resolved: {
     label: 'Resolved',
-    badgeClass: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
+    badgeClass: 'bg-emerald-950/60 text-emerald-300 border-emerald-800/70',
     dotClass: 'bg-emerald-400',
   },
   dismissed: {
     label: 'Dismissed',
-    badgeClass: 'bg-zinc-800/60 text-zinc-400 border-zinc-700/60',
-    dotClass: 'bg-zinc-500',
+    badgeClass: 'bg-zinc-800/80 text-zinc-300 border-zinc-700/80',
+    dotClass: 'bg-zinc-400',
   },
 };
 
 // Severity badge configuration
 const SEVERITY_CONFIG = {
   Low: {
-    badgeClass: 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60',
+    badgeClass: 'bg-emerald-950/60 text-emerald-300 border-emerald-800/70',
     icon: '🟢',
   },
   Medium: {
-    badgeClass: 'bg-yellow-950/40 text-yellow-300 border-yellow-800/60',
+    badgeClass: 'bg-yellow-950/60 text-yellow-300 border-yellow-800/70',
     icon: '🟡',
   },
   High: {
-    badgeClass: 'bg-amber-950/40 text-amber-300 border-amber-800/60',
+    badgeClass: 'bg-amber-950/60 text-amber-300 border-amber-800/70',
     icon: '🟠',
   },
   Critical: {
-    badgeClass: 'bg-red-950/50 text-red-300 border-red-800/70 font-bold',
+    badgeClass: 'bg-red-950/70 text-red-300 border-red-800/80 font-bold',
     icon: '🔴',
   },
 };
@@ -98,19 +98,19 @@ export default function MyReportsPage() {
   });
 
   return (
-    <main className="min-h-[calc(100vh-4rem)] w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
+    <main className="min-h-[calc(100vh-4rem)] w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 flex flex-col gap-6">
       {/* Top Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-bg-border)] pb-4">
         <div>
           <div className="flex items-center gap-3">
             <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-[var(--color-text-primary)] flex items-center gap-2.5">
               <svg className="w-7 h-7 text-[var(--color-sand)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 01-2-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               My Emergency Reports
             </h1>
             {!isLoading && (
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--color-primary)]/20 text-[var(--color-primary)] border border-[var(--color-primary)]/40">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-[var(--color-sand)]/20 text-[var(--color-sand)] border border-[var(--color-sand)]/40">
                 {incidents.length} {incidents.length === 1 ? 'Report' : 'Reports'}
               </span>
             )}
@@ -125,7 +125,7 @@ export default function MyReportsPage() {
           <button
             onClick={fetchIncidents}
             disabled={isLoading}
-            className="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-bg-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+            className="px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-bg-border)] hover:border-[var(--color-sand)] hover:text-[var(--color-sand)] transition-all cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
             title="Refresh list"
           >
             <svg className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,9 +136,9 @@ export default function MyReportsPage() {
 
           <Link
             to="/report-incident"
-            className="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-all shadow-sm flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-[var(--color-sand)] text-[#0c1612] hover:bg-[var(--color-primary-hover)] transition-all shadow-sm flex items-center gap-1.5"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-[#0c1612]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             <span>New Report</span>
@@ -160,8 +160,8 @@ export default function MyReportsPage() {
                 onClick={() => setFilterCategory(cat)}
                 className={`px-3 py-1 rounded-md font-medium border transition-all cursor-pointer whitespace-nowrap ${
                   filterCategory === cat
-                    ? 'bg-[var(--color-primary)] text-white border-[var(--color-primary)]'
-                    : 'bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-bg-border)] hover:border-[var(--color-primary)]/50 hover:text-[var(--color-text-primary)]'
+                    ? 'bg-[var(--color-sand)] text-[#0c1612] border-[var(--color-sand)] font-bold'
+                    : 'bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/50 hover:text-[var(--color-text-primary)]'
                 }`}
               >
                 {cat}
@@ -180,7 +180,7 @@ export default function MyReportsPage() {
                 onClick={() => setFilterSeverity(sev)}
                 className={`px-3 py-1 rounded-md font-medium border transition-all cursor-pointer whitespace-nowrap ${
                   filterSeverity === sev
-                    ? 'bg-[var(--color-sand)] text-black border-[var(--color-sand)] font-bold'
+                    ? 'bg-[var(--color-sand)] text-[#0c1612] border-[var(--color-sand)] font-bold'
                     : 'bg-[var(--color-bg-surface)] text-[var(--color-text-secondary)] border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/50 hover:text-[var(--color-text-primary)]'
                 }`}
               >
@@ -209,13 +209,13 @@ export default function MyReportsPage() {
 
       {/* Error State */}
       {!isLoading && error && (
-        <div className="bg-red-950/30 border border-red-800/60 rounded-xl p-6 text-center max-w-xl mx-auto space-y-4 my-8">
-          <div className="w-12 h-12 rounded-full bg-red-900/40 text-red-400 flex items-center justify-center mx-auto text-xl font-bold">
+        <div className="bg-red-950/40 border border-red-800/70 rounded-xl p-6 text-center max-w-xl mx-auto space-y-4 my-8">
+          <div className="w-12 h-12 rounded-full bg-red-900/50 text-red-300 flex items-center justify-center mx-auto text-xl font-bold">
             !
           </div>
           <div className="space-y-1">
             <h3 className="text-lg font-bold text-red-200">Unable to Load Reports</h3>
-            <p className="text-xs text-red-300/80">{error}</p>
+            <p className="text-xs text-red-300/90">{error}</p>
           </div>
           <button
             onClick={fetchIncidents}
@@ -240,9 +240,9 @@ export default function MyReportsPage() {
           </div>
           <Link
             to="/report-incident"
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-semibold bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-hover)] transition-all shadow-md"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold bg-[var(--color-sand)] text-[#0c1612] hover:bg-[var(--color-primary-hover)] transition-all shadow-md"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 text-[#0c1612]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             Report an Emergency Now
@@ -252,7 +252,7 @@ export default function MyReportsPage() {
 
       {/* Incident Grid (Full Width, Responsive 1 -> 2 -> 3 columns) */}
       {!isLoading && !error && filteredIncidents.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {filteredIncidents.map((incident) => {
             const statusStyle = STATUS_CONFIG[incident.status] || STATUS_CONFIG.reported;
             const severityStyle = SEVERITY_CONFIG[incident.severity] || SEVERITY_CONFIG.Medium;
@@ -264,12 +264,12 @@ export default function MyReportsPage() {
               <div
                 key={incident._id || incident.incidentId}
                 onClick={() => setSelectedIncident(incident)}
-                className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] hover:border-[var(--color-primary)]/60 rounded-xl p-5 shadow-lg transition-all duration-200 hover:shadow-2xl flex flex-col justify-between cursor-pointer group hover:-translate-y-0.5"
+                className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/60 rounded-xl p-5 shadow-lg transition-all duration-200 hover:shadow-2xl flex flex-col justify-between cursor-pointer group hover:-translate-y-0.5"
               >
                 <div className="space-y-3">
                   {/* Top Bar: Reference ID & Status Badge */}
                   <div className="flex items-center justify-between gap-2 border-b border-[var(--color-bg-border)] pb-2.5">
-                    <span className="font-mono text-xs font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2.5 py-0.5 rounded border border-[var(--color-primary)]/30">
+                    <span className="font-mono text-xs font-bold text-[var(--color-sand)] bg-[var(--color-sand)]/10 px-2.5 py-0.5 rounded border border-[var(--color-sand)]/30">
                       {incident.incidentId}
                     </span>
                     <div className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border flex items-center gap-1.5 ${statusStyle.badgeClass}`}>
@@ -281,7 +281,7 @@ export default function MyReportsPage() {
                   {/* Title & Category & Severities */}
                   <div>
                     <div className="flex items-start justify-between gap-2">
-                      <h2 className="text-base font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-primary)] transition-colors line-clamp-1">
+                      <h2 className="text-base font-bold text-[var(--color-text-primary)] group-hover:text-[var(--color-sand)] transition-colors line-clamp-1">
                         {incident.title}
                       </h2>
                       <span className={`px-2 py-0.5 rounded text-[11px] font-semibold border whitespace-nowrap ${severityStyle.badgeClass}`}>
@@ -301,9 +301,9 @@ export default function MyReportsPage() {
 
                   {/* AI Classification & Severity Callout Badge */}
                   {ai && (
-                    <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-primary)]/30 rounded-lg p-3 space-y-1.5">
+                    <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-sand)]/30 rounded-lg p-3 space-y-1.5">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="font-semibold text-[var(--color-primary)] flex items-center gap-1">
+                        <span className="font-semibold text-[var(--color-sand)] flex items-center gap-1">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                           </svg>
@@ -340,7 +340,7 @@ export default function MyReportsPage() {
 
       {/* Detailed Modal Panel */}
       {selectedIncident && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
           <div
             className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] rounded-2xl max-w-2xl w-full p-6 space-y-6 shadow-2xl overflow-y-auto max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
@@ -349,7 +349,7 @@ export default function MyReportsPage() {
             <div className="flex items-start justify-between gap-4 border-b border-[var(--color-bg-border)] pb-4">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-[var(--color-primary)] bg-[var(--color-primary)]/15 px-2.5 py-0.5 rounded border border-[var(--color-primary)]/40">
+                  <span className="font-mono text-xs font-bold text-[var(--color-sand)] bg-[var(--color-sand)]/15 px-2.5 py-0.5 rounded border border-[var(--color-sand)]/40">
                     {selectedIncident.incidentId}
                   </span>
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${STATUS_CONFIG[selectedIncident.status]?.badgeClass}`}>
@@ -394,15 +394,15 @@ export default function MyReportsPage() {
 
               {/* AI Emergency Assessment Section (Features 8 & 9) */}
               {selectedIncident.aiClassification && (
-                <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-primary)]/40 rounded-xl p-4 space-y-3">
+                <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-sand)]/40 rounded-xl p-4 space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-[var(--color-bg-border)]">
-                    <span className="text-xs font-bold text-[var(--color-primary)] flex items-center gap-1.5">
-                      <svg className="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <span className="text-xs font-bold text-[var(--color-sand)] flex items-center gap-1.5">
+                      <svg className="w-4 h-4 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                       </svg>
                       AI Emergency Classification & Priority Assessment
                     </span>
-                    <span className="font-mono text-[11px] font-bold text-[var(--color-sand)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded border border-[var(--color-primary)]/30">
+                    <span className="font-mono text-[11px] font-bold text-[var(--color-sand)] bg-[var(--color-sand)]/10 px-2 py-0.5 rounded border border-[var(--color-sand)]/30">
                       Category: {Math.round((selectedIncident.aiClassification.confidence || 0) * 100)}% | Severity: {Math.round((selectedIncident.aiClassification.severityConfidence || 0) * 100)}%
                     </span>
                   </div>
@@ -442,7 +442,7 @@ export default function MyReportsPage() {
 
               {/* Feature 10: AI Safety Guidance & Recommendations */}
               {selectedIncident.safetyRecommendations && (
-                <div className="bg-[var(--color-bg-elevated)] border border-amber-800/40 rounded-xl p-4 space-y-3">
+                <div className="bg-[var(--color-bg-elevated)] border border-amber-800/50 rounded-xl p-4 space-y-3">
                   <div className="flex items-center justify-between pb-2 border-b border-[var(--color-bg-border)]">
                     <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
                       <svg className="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -458,7 +458,7 @@ export default function MyReportsPage() {
                   <ul className="space-y-1.5 text-xs text-[var(--color-text-primary)]">
                     {selectedIncident.safetyRecommendations.recommendations?.map((rec, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <span className="w-5 h-5 rounded-full bg-amber-950/60 border border-amber-700/50 text-amber-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <span className="w-5 h-5 rounded-full bg-amber-950/70 border border-amber-700/60 text-amber-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                           {idx + 1}
                         </span>
                         <span className="leading-snug">{rec}</span>
@@ -467,7 +467,7 @@ export default function MyReportsPage() {
                   </ul>
 
                   {selectedIncident.safetyRecommendations.warning && (
-                    <div className="bg-amber-950/30 border border-amber-800/50 rounded-lg p-2.5 text-[11px] text-amber-200/90 flex items-start gap-2 mt-2">
+                    <div className="bg-amber-950/40 border border-amber-800/60 rounded-lg p-2.5 text-[11px] text-amber-200/95 flex items-start gap-2 mt-2">
                       <svg className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
@@ -511,7 +511,7 @@ export default function MyReportsPage() {
             <div className="flex justify-end pt-3 border-t border-[var(--color-bg-border)]">
               <button
                 onClick={() => setSelectedIncident(null)}
-                className="px-5 py-2 rounded-lg text-xs font-semibold bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-bg-border)] hover:border-[var(--color-primary)] transition-all cursor-pointer"
+                className="px-5 py-2 rounded-lg text-xs font-semibold bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-bg-border)] hover:border-[var(--color-sand)] transition-all cursor-pointer"
               >
                 Close Details
               </button>

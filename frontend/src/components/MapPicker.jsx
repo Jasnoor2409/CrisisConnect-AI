@@ -172,7 +172,7 @@ export default function MapPicker({ location, onChange }) {
           type="button"
           onClick={handleUseCurrentLocation}
           disabled={isGeolocating}
-          className="self-start sm:self-auto px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-bg-surface)] text-[var(--color-sand)] border border-[var(--color-bg-border)] hover:border-[var(--color-primary)] transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
+          className="self-start sm:self-auto px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--color-bg-surface)] text-[var(--color-sand)] border border-[var(--color-bg-border)] hover:border-[var(--color-sand)] transition-all cursor-pointer flex items-center gap-1.5 shadow-sm"
         >
           {isGeolocating ? (
             <>
@@ -181,7 +181,7 @@ export default function MapPicker({ location, onChange }) {
             </>
           ) : (
             <>
-              <svg className="w-3.5 h-3.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
@@ -192,15 +192,15 @@ export default function MapPicker({ location, onChange }) {
       </div>
 
       {geoError && (
-        <p className="text-xs text-red-400 bg-red-950/30 p-2 rounded border border-red-900/40">
+        <p className="text-xs text-red-300 bg-red-950/40 p-2 rounded border border-red-800/60">
           {geoError}
         </p>
       )}
 
       {/* Leaflet Map Container */}
-      <div className="relative w-full h-[280px] sm:h-[320px] rounded-xl overflow-hidden border border-[var(--color-bg-border)] shadow-inner z-0">
+      <div className="relative w-full h-[290px] sm:h-[310px] rounded-xl overflow-hidden border border-[var(--color-bg-border)] shadow-inner z-0">
         <div ref={mapContainerRef} className="w-full h-full" />
-        <div className="absolute bottom-2 left-2 z-[400] bg-[var(--color-bg-surface)]/90 backdrop-blur px-2.5 py-1 rounded text-[10px] font-mono text-[var(--color-text-secondary)] border border-[var(--color-bg-border)]">
+        <div className="absolute bottom-2 left-2 z-[400] bg-[var(--color-bg-surface)]/95 backdrop-blur px-2.5 py-1 rounded text-[10px] font-mono text-[var(--color-text-secondary)] border border-[var(--color-bg-border)]">
           Click map or drag marker to set coordinates
         </div>
       </div>
@@ -209,10 +209,10 @@ export default function MapPicker({ location, onChange }) {
       <div className="p-3.5 rounded-lg bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)] space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[var(--color-primary)]"></span>
+            <span className="w-2 h-2 rounded-full bg-[var(--color-sand)]"></span>
             Selected Coordinates
           </span>
-          <span className="text-xs font-mono text-[var(--color-primary)] bg-[var(--color-primary)]/10 px-2 py-0.5 rounded border border-[var(--color-primary)]/30 font-semibold">
+          <span className="text-xs font-mono text-[var(--color-sand)] bg-[var(--color-sand)]/10 px-2 py-0.5 rounded border border-[var(--color-sand)]/30 font-semibold">
             Lat: {currentLat.toFixed(5)}, Lng: {currentLng.toFixed(5)}
           </span>
         </div>
@@ -228,7 +228,7 @@ export default function MapPicker({ location, onChange }) {
             value={location?.address || ''}
             onChange={(e) => onChange({ ...location, address: e.target.value })}
             placeholder="Address or landmark description..."
-            className="w-full mt-1 px-3 py-2 rounded-lg text-xs bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-primary)] transition-all"
+            className="w-full mt-1 px-3 py-2 rounded-lg text-xs bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] text-[var(--color-text-primary)] focus:outline-none focus:border-[var(--color-sand)] transition-all"
           />
         </div>
       </div>
