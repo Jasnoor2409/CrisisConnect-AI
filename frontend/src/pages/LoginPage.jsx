@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { choFetchDemoLogin } from '../services/authService.js';
 
 // ── Helper: extract error messages from Axios error ───────────────────────────
 const extractErrors = (error) => {
@@ -12,13 +13,30 @@ const extractErrors = (error) => {
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, verifySession } = useAuth();
 
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // TEMPORARY CHO EVALUATION FETCH DEMO
+  const handleChoFetchDemo = async () => {
+    setIsLoading(true);
+    setServerError('');
+    try {
+      const data = await choFetchDemoLogin();
+      if (data.success) {
+        await verifySession();
+        navigate('/report-incident');
+      }
+    } catch (error) {
+      setServerError(error.message || 'Fetch API Demo Failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // ── Controlled input handler ────────────────────────────────────────────────
   const handleChange = (e) => {
@@ -314,6 +332,22 @@ export default function LoginPage() {
           >
             Create an account
           </Link>
+
+          {/* TEMPORARY CHO EVALUATION FETCH DEMO */}
+          <div className="mt-4 pt-4 border-t border-[var(--color-bg-border)]/60 text-center">
+            <button
+              type="button"
+              id="cho-fetch-demo-btn"
+              onClick={handleChoFetchDemo}
+              disabled={isLoading}
+              className="w-full py-2.5 px-4 rounded-lg text-xs font-semibold bg-emerald-950/60 text-emerald-400 border border-emerald-700/60 hover:bg-emerald-900/60 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span>⚡ Demo Login (Fetch API Demo - CHO Evaluation)</span>
+            </button>
+            <span className="text-[10px] text-[var(--color-text-muted)] block mt-1">
+              Demonstrates native Fetch API & Promise chaining (.then/.catch)
+            </span>
+          </div>
         </div>
 
         {/* ── Footer note ───────────────────────────────────────────────── */}

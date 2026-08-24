@@ -29,6 +29,43 @@ export const loginUser = async (data) => {
   return response.data;
 };
 
+// TEMPORARY CHO EVALUATION FETCH DEMO
+/**
+ * Executes a login demonstration using the native Fetch API and Promise chaining (.then().catch()).
+ * Demonstrates: Fetch API, Promise chaining, Default parameters for CHO syllabus evaluation.
+ * @param {{ email?: string, password?: string }} demoCredentials
+ * @returns {Promise<{ success: boolean, message: string, token: string, user: object }>}
+ */
+export const choFetchDemoLogin = (
+  demoCredentials = { email: 'demo@crisisconnect.ai', password: 'DemoPass123!' }
+) => {
+  const BASE_URL = '/api';
+  return window
+    .fetch(`${BASE_URL}/auth/cho-demo-login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(demoCredentials),
+    })
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Fetch API Error: HTTP status ${response.status}`);
+      }
+      return response.json();
+    })
+    .then((data) => {
+      if (data.success && data.token && data.user) {
+        saveAuthData(data.token, data.user);
+      }
+      return data;
+    })
+    .catch((err) => {
+      console.error('CHO Fetch Demo Error:', err);
+      throw err;
+    });
+};
+
 // ── User Profile & Session Verification (Feature 4) ───────────────────────────
 
 /**

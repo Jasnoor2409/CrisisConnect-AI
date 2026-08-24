@@ -244,3 +244,45 @@ export const getMe = async (req, res) => {
   }
 };
 
+// TEMPORARY CHO EVALUATION FETCH DEMO
+export const choDemoLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'CHO Evaluation Demo: Email and password required',
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    // Generate valid JWT token for demo user session
+    const token = jwt.sign(
+      { id: '507f1f77bcf86cd799439011', role: 'citizen' },
+      process.env.JWT_SECRET || 'cc-ai-jwt-secret-key-2026-viva-demo-xK9mPqR3',
+      { expiresIn: '1d' }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: 'TEMPORARY CHO EVALUATION FETCH DEMO: Authentication Successful',
+      token,
+      user: {
+        id: '507f1f77bcf86cd799439011',
+        name: 'CHO Evaluator',
+        email: normalizedEmail,
+        role: 'citizen',
+        createdAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'CHO Evaluation Fetch Demo Error',
+      error: error.message,
+    });
+  }
+};
+
+

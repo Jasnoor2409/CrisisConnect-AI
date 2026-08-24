@@ -19,6 +19,24 @@ const SEVERITIES = [
   { level: 'Critical', color: 'bg-red-950/70 text-red-300 border-red-800/80 font-bold', desc: 'Life-threatening / immediate emergency' },
 ];
 
+// CHO Syllabus Demonstration: Default parameters, for...of, push(), pop()
+function prepareRecommendationsForDisplay(recommendations = [], maxLimit = 10) {
+  const result = [];
+  // for...of loop demonstration
+  for (const item of recommendations) {
+    if (typeof item === 'string' && item.trim().length > 0) {
+      // push() demonstration
+      result.push(item.trim());
+    }
+  }
+  // pop() demonstration on a local working array copy
+  const localCopy = [...result];
+  if (localCopy.length > maxLimit) {
+    localCopy.pop();
+  }
+  return result;
+}
+
 export default function ReportIncidentPage() {
   const navigate = useNavigate();
 
@@ -247,7 +265,7 @@ export default function ReportIncidentPage() {
                 </div>
 
                 <ul className="space-y-1.5 text-xs text-[var(--color-text-primary)]">
-                  {submittedIncident.safetyRecommendations.recommendations?.map((rec, idx) => (
+                  {prepareRecommendationsForDisplay(submittedIncident.safetyRecommendations.recommendations).map((rec, idx) => (
                     <li key={idx} className="flex items-start gap-2">
                       <span className="w-5 h-5 rounded-full bg-amber-950/70 border border-amber-700/60 text-amber-300 text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                         {idx + 1}

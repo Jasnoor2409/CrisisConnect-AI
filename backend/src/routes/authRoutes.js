@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { registerUser, loginUser, getMe } from '../controllers/authController.js';
+import { registerUser, loginUser, getMe, choDemoLogin } from '../controllers/authController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorizeRoles } from '../middleware/roleMiddleware.js';
 
@@ -10,6 +10,9 @@ router.post('/register', registerUser);
 
 // POST /api/auth/login (Feature 2)
 router.post('/login', loginUser);
+
+// TEMPORARY CHO EVALUATION FETCH DEMO
+router.post('/cho-demo-login', choDemoLogin);
 
 // GET /api/auth/me (Feature 4 — session persistence & profile verification)
 router.get('/me', protect, getMe);

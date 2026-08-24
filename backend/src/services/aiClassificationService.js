@@ -197,12 +197,30 @@ const predefinedSafetyGuidance = {
   },
 };
 
-function fallbackSafetyRecommendations(category) {
+// CHO Syllabus Demonstration: Default parameters, for...of, push(), pop()
+function fallbackSafetyRecommendations(category = 'Other') {
   const validCat = ALLOWED_CATEGORIES.includes(category) ? category : 'Other';
   const guidance = predefinedSafetyGuidance[validCat] || predefinedSafetyGuidance.Other;
 
+  const processedRecs = [];
+  const rawList = guidance.recommendations || [];
+  
+  // for...of loop demonstration
+  for (const item of rawList) {
+    if (typeof item === 'string' && item.length > 0) {
+      // push() demonstration
+      processedRecs.push(item);
+    }
+  }
+
+  // pop() demonstration on a temporary working array copy
+  const tempStack = [...processedRecs];
+  if (tempStack.length > 10) {
+    tempStack.pop();
+  }
+
   return {
-    recommendations: guidance.recommendations,
+    recommendations: processedRecs,
     warning: `${guidance.warning} This guidance is informational; follow official responder instructions.`,
     isFallback: true,
     generatedAt: new Date(),

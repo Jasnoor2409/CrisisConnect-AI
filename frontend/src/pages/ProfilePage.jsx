@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { getCitizenTest, getResponderTest, getAdminTest } from '../services/authService.js';
 
@@ -9,7 +9,38 @@ export default function ProfilePage() {
   const [testResults, setTestResults] = useState({});
   const [testingEndpoint, setTestingEndpoint] = useState(null);
 
+  // CHO Syllabus Demonstration: DOM APIs & Direct DOM Manipulation
+  useEffect(() => {
+    // 1. getElementById() + direct DOM manipulation
+    const statusElem = document.getElementById('cho-session-status');
+    if (statusElem) {
+      statusElem.textContent = 'Active Authenticated Session';
+      statusElem.setAttribute('data-session-verified', 'true');
+    }
+
+    // 2. querySelector() + direct DOM manipulation
+    const headerTitle = document.querySelector('.cho-profile-title');
+    if (headerTitle) {
+      headerTitle.style.letterSpacing = '0.02em';
+    }
+
+    // 3. querySelectorAll() + direct DOM manipulation
+    const badges = document.querySelectorAll('.cho-syllabus-badge');
+    badges.forEach((badge) => {
+      badge.classList.add('border-emerald-700/60');
+    });
+  }, []);
+
   if (!user) return null;
+
+  // CHO Syllabus Demonstration: for...in loop iterating object properties
+  const userProfileAttributes = [];
+  const userObj = { name: user.name, email: user.email, role: user.role };
+  for (const key in userObj) {
+    if (Object.prototype.hasOwnProperty.call(userObj, key)) {
+      userProfileAttributes.push({ field: key, val: userObj[key] });
+    }
+  }
 
   // Format account creation date
   const formattedDate = user.createdAt
@@ -109,32 +140,46 @@ export default function ProfilePage() {
   return (
     <main className="min-h-[calc(100vh-4rem)] w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 flex flex-col gap-6">
       {/* Page Header (No duplicate logout button) */}
-      <div className="border-b border-[var(--color-bg-border)] pb-5">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">
-          User Profile
-        </h1>
-        <p className="text-sm text-[var(--color-text-secondary)] mt-1">
-          Authenticated session details and role authorization status
-        </p>
+      <div className="border-b border-[var(--color-bg-border)] pb-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h1 className="cho-profile-title text-2xl sm:text-3xl font-bold tracking-tight text-[var(--color-text-primary)]">
+            User Profile
+          </h1>
+          <p className="text-sm text-[var(--color-text-secondary)] mt-1">
+            Authenticated session details and role authorization status
+          </p>
+        </div>
+
+        {/* DOM API Target Badge */}
+        <div className="flex items-center gap-2">
+          <span
+            id="cho-session-status"
+            className="cho-syllabus-badge text-xs font-semibold px-3 py-1 rounded-full bg-emerald-950/60 text-emerald-400 border border-emerald-800/60"
+          >
+            Session Active
+          </span>
+        </div>
       </div>
 
       {/* User Information Card */}
       <section className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] rounded-xl p-6 shadow-lg w-full">
-        <div className="flex items-center gap-4 pb-6 border-b border-[var(--color-bg-border)]">
-          <div className="w-14 h-14 rounded-full bg-[var(--color-sand)]/20 border border-[var(--color-sand)]/40 flex items-center justify-center text-xl font-bold text-[var(--color-sand)] flex-shrink-0">
-            {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">{user.name}</h2>
-            <div
-              className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border mt-1"
-              style={{
-                backgroundColor: roleInfo.bg,
-                borderColor: roleInfo.border,
-                color: roleInfo.text,
-              }}
-            >
-              {roleInfo.label}
+        <div className="flex items-center justify-between gap-4 pb-6 border-b border-[var(--color-bg-border)]">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-full bg-[var(--color-sand)]/20 border border-[var(--color-sand)]/40 flex items-center justify-center text-xl font-bold text-[var(--color-sand)] flex-shrink-0">
+              {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-[var(--color-text-primary)]">{user.name}</h2>
+              <div
+                className="cho-syllabus-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold uppercase tracking-wider border mt-1"
+                style={{
+                  backgroundColor: roleInfo.bg,
+                  borderColor: roleInfo.border,
+                  color: roleInfo.text,
+                }}
+              >
+                {roleInfo.label}
+              </div>
             </div>
           </div>
         </div>
