@@ -7,7 +7,7 @@ CrisisConnect AI is a web-based emergency incident management platform that allo
 This project is being developed as a team-based academic project and is currently at the **first evaluation stage (approximately 1/3 of the planned project)**.
 
 ---
-
+ai project
 ## 🎯 Project Objective
 
 During an emergency, citizens may not know how to properly describe an incident, determine its urgency, or identify immediate safety actions.
