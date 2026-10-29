@@ -1,165 +1,259 @@
-# 🚨 CrisisConnect AI
+🚨 CrisisConnect AI
 
-> An AI-powered emergency incident reporting and safety assistance platform.
+AI-Powered Emergency Response & Disaster Management Platform
 
-CrisisConnect AI is a web-based emergency incident management platform that allows citizens to report emergency situations with their location and receive AI-powered classification, severity assessment, and safety recommendations.
+CrisisConnect AI is a web-based emergency incident reporting and management platform designed to make incident information easier to submit, organize, assess, and review. It combines structured reporting, map-based location capture, evidence uploads, AI-assisted incident classification, and role-based dashboards in one centralized application.
 
-This project is being developed as a team-based academic project and is currently at the **first evaluation stage (approximately 1/3 of the planned project)**.
-
----
-ai project
-## 🎯 Project Objective
-
-During an emergency, citizens may not know how to properly describe an incident, determine its urgency, or identify immediate safety actions.
-
-CrisisConnect AI aims to provide a centralized platform where users can:
-
-- Register and securely log in
-- Report emergency incidents
-- Specify the incident location using an interactive map
-- View their previously reported incidents
-- Receive AI-based emergency classification
-- Receive AI-based severity/priority assessment
-- Get immediate safety recommendations
+The project aims to support a more organized emergency reporting workflow by connecting citizens with an incident review interface for responders.
 
 ---
 
-# ✨ Features Implemented — First Evaluation
+✨ Key Features
 
-## 1. User Registration
+👤 Authentication & Role-Based Access
 
-Users can create an account by providing:
+- User registration and login.
+- JWT-based authentication.
+- Password hashing using bcrypt.
+- Role-based access control (RBAC) for authorized features.
+- Protected backend routes and access validation.
 
-- Name
-- Email
-- Password
-- Role
+📝 Emergency Incident Reporting
 
-Supported roles:
+- Submit incidents through a structured reporting form.
+- Enter incident title, category, reported severity, and description.
+- Attach supporting photos or documents.
+- Store incident information for later review.
 
-- 👤 Citizen
-- 🚑 Responder
-- 🛡️ Admin
+📍 Map-Based Location Capture
 
-Passwords are securely hashed before being stored in MongoDB.
+- Interactive maps using Leaflet and OpenStreetMap.
+- Browser-based geolocation when permission is granted.
+- Location selection and coordinate capture.
+- Location details associated with incident reports.
 
----
+🤖 AI-Assisted Incident Assessment
 
-## 2. User Login & Authentication
+- Incident category prediction.
+- Severity assessment and priority indication.
+- Contextual safety recommendations.
+- Fallback assessment logic when the configured AI service is unavailable.
 
-Users can securely log in using their registered credentials.
+Note: AI results and fallback-generated assessments are not necessarily equivalent to a live AI model response or a professional emergency assessment.
 
-The system provides:
+📂 My Reports
 
-- Email and password validation
-- Secure password verification
-- JWT authentication
-- Authentication error handling
-- Protected API access
+- View previously submitted incidents.
+- Review incident details and available evidence.
+- Filter and inspect reports using the available interface.
 
-The JWT token is stored locally to maintain the user's session.
+🛡️ Responder Dashboard
 
----
+- Centralized incident review queue.
+- Search incidents using available search fields.
+- Inspect incident details, location, evidence, and AI-assisted assessments.
+- View available incident status and assignment information.
 
-## 3. Role-Based Access Control (RBAC)
+📚 CHO Learning Lab
 
-CrisisConnect AI implements role-based authorization.
-
-### Citizen
-Can:
-
-- Report incidents
-- View their own reports
-- Access citizen-level functionality
-
-### Responder
-Can:
-
-- Access citizen-level functionality
-- Access responder-level endpoints
-
-### Admin
-Can:
-
-- Access citizen-level functionality
-- Access responder-level functionality
-- Access admin-level endpoints
-
-Unauthorized users receive appropriate `401 Unauthorized` or `403 Forbidden` responses.
+- A dedicated learning interface supporting the project's CHO-related academic requirements.
+- Reference materials and learning content organized within the application.
 
 ---
 
-## 4. User Profile & Session Management
+🖥️ Technology Stack
 
-Authenticated users can view their profile information.
-
-The profile displays:
-
-- Name
-- Email
-- Role
-- Account creation date
-
-The application also:
-
-- Restores sessions after page refresh
-- Validates JWT tokens
-- Automatically clears invalid sessions
-- Provides logout functionality
+Layer| Technologies
+Frontend| React.js, Vite, JavaScript, JSX
+Styling| Tailwind CSS, Custom CSS
+Routing & State| React Router, Context API
+API Communication| Axios, REST APIs
+Backend| Node.js, Express.js
+Authentication & Security| JWT, bcrypt, Middleware, RBAC
+Database| MongoDB Atlas, Mongoose
+Maps & Location| Leaflet, OpenStreetMap, Browser Geolocation API
+AI Assessment| Configured AI service with fallback logic
+Development Tools| VS Code, Google Antigravity, npm, Git, GitHub
 
 ---
 
-## 5. Emergency Incident Reporting
+🔄 Application Workflow
 
-Citizens can submit emergency reports containing:
-
-- Incident title
-- Category
-- Description
-- Severity
-- Location
-
-### Incident Categories
-
-- Accident
-- Fire
-- Medical Emergency
-- Crime
-- Natural Disaster
-- Other
-
-### Severity Levels
-
-- Low
-- Medium
-- High
-- Critical
-
-Each incident receives a unique incident reference ID such as:
-
-`INC-2026-CC6NN`
-
-Incident information is stored in MongoDB.
+1. Authenticate — The user registers or logs in.
+2. Report an incident — The citizen enters incident information through the reporting form.
+3. Capture location and evidence — The user selects a location and attaches available supporting files.
+4. Validate the request — The backend validates incoming data and processes the request.
+5. Assess the incident — The application generates an AI-assisted classification, severity assessment, and safety guidance.
+6. Store incident information — The incident is persisted in the database.
+7. Review incidents — Citizens can view their reports, while authorized responders can review incidents through their dashboard.
 
 ---
 
-## 6. Interactive Location & Map
+🏗️ High-Level Architecture
 
-Incident reports include an interactive map powered by **Leaflet** and OpenStreetMap.
+Citizen / Responder
+        |
+        v
+ React.js Frontend
+        |
+        | HTTP / REST API
+        v
+ Node.js + Express.js
+        |
+        +---- Authentication & RBAC
+        |
+        +---- Incident Processing
+        |
+        +---- Evidence Upload Handling
+        |
+        +---- AI Assessment + Fallback
+        |
+        v
+ MongoDB Atlas
 
-Users can:
+The frontend handles user interaction, the backend manages requests and application logic, and MongoDB Atlas stores application data. Mapping and AI-assisted assessment support the incident-reporting workflow.
 
-- Click on the map to select a location
-- Drag the location marker
-- Use their current GPS location
-- View latitude and longitude
-- Enter or obtain an address
+---
 
-The selected location is stored with the incident.
+🔐 Security Considerations
 
-Example:
+- Protected routes use authentication and authorization checks.
+- Passwords are hashed rather than stored as plain text.
+- Environment variables are used for sensitive configuration.
+- Uploaded evidence should be validated and handled securely.
+- Access permissions are checked according to the user's role.
 
-```text
-Latitude: 30.3398
-Longitude: 76.3869
-Address: Selected emergency location..
+Important: Never commit your actual ".env" file, database credentials, API keys, JWT secrets, or private incident evidence to GitHub.
+
+---
+
+🚀 Getting Started
+
+Follow these steps to run the project locally.
+
+Prerequisites
+
+- "Node.js" (https://nodejs.org/) and npm
+- MongoDB Atlas account or a compatible MongoDB deployment
+- Git
+- A code editor such as VS Code
+
+1. Clone the repository
+
+git clone https://github.com/Jasnoor2409/CrisisConnect-AI.git
+cd CrisisConnect-AI
+
+2. Configure the backend
+
+cd backend
+npm install
+
+Create a ".env" file inside the "backend" directory using ".env.example" as a reference.
+
+Configure the environment variables required by your application:
+
+PORT=5000
+NODE_ENV=development
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_long_random_secret
+
+Add the optional AI provider configuration if your implementation requires it. Follow the variable names and setup instructions in the project's environment example.
+
+3. Start the backend
+
+npm run dev
+
+When the server starts successfully, the health endpoint is available at:
+
+http://localhost:5000/api/health
+
+4. Configure and start the frontend
+
+Open a second terminal:
+
+cd frontend
+npm install
+npm run dev
+
+Open the local URL printed by Vite, typically:
+
+http://localhost:5173
+
+Configuration note: Ensure the frontend API base URL matches your running backend. Check the project's configuration before changing environment-variable names or API endpoints.
+
+---
+
+⚙️ Configuration
+
+Variable| Purpose
+"PORT"| Backend server port
+"NODE_ENV"| Application environment
+"MONGODB_URI"| MongoDB connection string
+"JWT_SECRET"| Secret used for signing and verifying JWTs
+"GEMINI_API_KEY"| Optional Gemini provider key, if configured
+"OPENAI_API_KEY"| Optional OpenAI provider key, if configured
+
+Use only the AI provider configuration supported by your current implementation. Keep real secrets in your local environment, never in committed example files.
+
+---
+
+🗺️ Project Scope
+
+Current Application
+
+- Authentication and role-based access.
+- Citizen incident reporting.
+- Map-based location capture.
+- Supporting evidence uploads.
+- AI-assisted incident assessment and fallback handling.
+- Citizen report history.
+- Responder incident review interface.
+- CHO Learning Lab.
+
+🔮 Future Scope
+
+- Dedicated Admin Dashboard for centralized monitoring and analytics.
+- More comprehensive incident assignment, status-update, and resolution workflows.
+- Real-time notifications for citizens and responders.
+- Integration with authorized ambulance, fire, and police service APIs.
+- Enhanced AI analytics, geographical hotspot detection, and incident trends.
+- Production deployment, scalability, monitoring, and further security improvements.
+
+These enhancements are planned extensions and should not be interpreted as currently implemented functionality.
+
+---
+
+⚠️ Limitations
+
+CrisisConnect AI is an academic software project intended to support incident reporting and review. It does not automatically dispatch emergency services or replace official emergency channels, trained responders, or professional emergency assessment.
+
+Users should contact the appropriate local emergency services directly when immediate assistance is required.
+
+---
+
+👩‍💻 Team
+
+Project Contributors
+
+- Jasnoor Kaur — Development
+- Kaashvi Sharma — Development
+
+Project: CrisisConnect AI
+Programme: BE Computer Science Engineering
+Evaluation: FA2 — Second Evaluation
+
+---
+
+🎯 Project Objective
+
+The objective of CrisisConnect AI is to demonstrate how modern web technologies, geolocation, secure access control, and AI-assisted assessment can be combined to create a centralized and organized emergency incident reporting platform.
+
+---
+
+📄 License
+
+No license has been specified yet. If you intend to make this project available for reuse, consider adding an appropriate open-source license.
+
+---
+
+Built as an academic project exploring emergency incident reporting, AI-assisted assessment, and incident coordination.
