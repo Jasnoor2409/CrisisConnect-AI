@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { getMyIncidents } from '../services/incidentService.js';
+import { getMyIncidents, uploadEvidence, getEvidenceUrl } from '../services/incidentService.js';
 
 // Status badge configuration
 const STATUS_CONFIG = {
@@ -53,6 +53,13 @@ export default function MyReportsPage() {
   const [selectedIncident, setSelectedIncident] = useState(null);
   const [filterCategory, setFilterCategory] = useState('ALL');
   const [filterSeverity, setFilterSeverity] = useState('ALL');
+  // CHO Lecture 14 (for...in), Lecture 32 (useRef): scroll-to-top ref
+  const topRef = useRef(null);
+
+  // Evidence upload state for the modal
+  const [evidenceUploading, setEvidenceUploading] = useState(false);
+  const [evidenceUploadError, setEvidenceUploadError] = useState('');
+  const [evidenceUploadSuccess, setEvidenceUploadSuccess] = useState('');
 
   const fetchIncidents = async () => {
     setIsLoading(true);
@@ -64,6 +71,7 @@ export default function MyReportsPage() {
       } else {
         setError(data.message || 'Failed to load incident history.');
       }
+      return data;
     } catch (err) {
       console.error('Fetch My Incidents error:', err);
       setError(err.response?.data?.message || err.message || 'An error occurred while fetching reports.');
@@ -75,6 +83,37 @@ export default function MyReportsPage() {
   useEffect(() => {
     fetchIncidents();
   }, []);
+
+  // When modal opens, clear upload state
+  const openModal = (incident) => {
+    setSelectedIncident(incident);
+    setEvidenceUploadError('');
+    setEvidenceUploadSuccess('');
+  };
+
+  // Handle evidence upload from modal
+  const handleModalEvidenceUpload = async (e) => {
+    if (!selectedIncident) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setEvidenceUploading(true);
+    setEvidenceUploadError('');
+    setEvidenceUploadSuccess('');
+    try {
+      const result = await uploadEvidence(selectedIncident._id, files);
+      if (result.success) {
+        setEvidenceUploadSuccess(`${result.evidence.length} file(s) uploaded successfully.`);
+        // Refresh the incident list and update selectedIncident with new evidence
+        const data = await fetchIncidents();
+        const updated = data?.incidents?.find((i) => i._id === selectedIncident._id);
+        if (updated) setSelectedIncident(updated);
+      }
+    } catch (err) {
+      setEvidenceUploadError(err.response?.data?.message || err.message || 'Upload failed.');
+    } finally {
+      setEvidenceUploading(false);
+    }
+  };
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -88,6 +127,7 @@ export default function MyReportsPage() {
     });
   };
 
+  // CHO Lecture 12: filter() — category + severity client-side filtering
   const filteredIncidents = incidents.filter((inc) => {
     const matchCat = filterCategory === 'ALL' || inc.category === filterCategory;
     const matchSev =
@@ -97,8 +137,33 @@ export default function MyReportsPage() {
     return matchCat && matchSev;
   });
 
+  // CHO Lecture 13: sort() — chronological descending order (newest first)
+  // slice() creates a copy so we never mutate the original state array
+  const sortedFilteredIncidents = filteredIncidents
+    .slice()                         // CHO Lecture 11: slice() — non-mutating copy
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // sort by date
+
+  // CHO Lecture 13: reduce() — compute live severity breakdown for stats bar
+  const severitySummary = incidents.reduce((acc, inc) => {
+    const sev = inc.aiClassification?.severity || inc.severity || 'Unknown';
+    acc[sev] = (acc[sev] || 0) + 1;
+    return acc;
+  }, {});
+
+  // CHO Lecture 11: slice() — last 3 most recent incident titles for the header
+  const recentTitles = incidents
+    .slice()                           // non-mutating
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3)                       // only first 3
+    .map(i => i.title);               // CHO Lecture 13: map() — extract titles
+
+  // Scroll to top of page — useRef DOM interaction (CHO Lecture 35)
+  const scrollToTop = () => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
-    <main className="min-h-[calc(100vh-4rem)] w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 flex flex-col gap-6">
+    <main ref={topRef} className="min-h-[calc(100vh-4rem)] w-full max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-6 flex flex-col gap-6">
       {/* Top Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--color-bg-border)] pb-4">
         <div>
@@ -145,6 +210,38 @@ export default function MyReportsPage() {
           </Link>
         </div>
       </div>
+
+      {/* CHO Lecture 13: reduce() result — Live severity breakdown stats bar */}
+      {!isLoading && incidents.length > 0 && (
+        <div className="flex items-center gap-3 flex-wrap text-[11px]">
+          <span className="text-[var(--color-text-muted)] font-semibold uppercase tracking-wider">Severity Breakdown:</span>
+          {/* Object.entries() + map() — CHO Lecture 13 */}
+          {Object.entries(severitySummary).map(([sev, count]) => (
+            <span key={sev} className={`px-2.5 py-0.5 rounded-full font-bold border ${
+              SEVERITY_CONFIG[sev]?.badgeClass || 'bg-zinc-800 text-zinc-300 border-zinc-700'
+            }`}>
+              {SEVERITY_CONFIG[sev]?.icon} {sev}: {count}
+            </span>
+          ))}
+          {/* slice() result — recentTitles used for aria-label / tooltip on New Report button */}
+          {recentTitles.length > 0 && (
+            <span className="text-[var(--color-text-muted)] ml-2 hidden lg:inline" title={`Latest: ${recentTitles.join(', ')}`}>
+              Latest: <em className="text-[var(--color-text-secondary)]">{recentTitles[0]}</em>
+            </span>
+          )}
+          {/* Scroll-to-top button — useRef demo (CHO Lecture 35) */}
+          <button
+            onClick={scrollToTop}
+            className="ml-auto text-[var(--color-text-muted)] hover:text-[var(--color-sand)] transition-colors text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+            title="Scroll to top (useRef demo)"
+          >
+            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            Top
+          </button>
+        </div>
+      )}
 
       {/* Filter Toolbar: Category & Severity Filters */}
       {!isLoading && !error && incidents.length > 0 && (
@@ -250,10 +347,10 @@ export default function MyReportsPage() {
         </div>
       )}
 
-      {/* Incident Grid (Full Width, Responsive 1 -> 2 -> 3 columns) */}
-      {!isLoading && !error && filteredIncidents.length > 0 && (
+      {/* Incident Grid — rendered using sortedFilteredIncidents (sort + filter + slice) */}
+      {!isLoading && !error && sortedFilteredIncidents.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
-          {filteredIncidents.map((incident) => {
+          {sortedFilteredIncidents.map((incident) => {
             const statusStyle = STATUS_CONFIG[incident.status] || STATUS_CONFIG.reported;
             const severityStyle = SEVERITY_CONFIG[incident.severity] || SEVERITY_CONFIG.Medium;
             const ai = incident.aiClassification;
@@ -263,7 +360,7 @@ export default function MyReportsPage() {
             return (
               <div
                 key={incident._id || incident.incidentId}
-                onClick={() => setSelectedIncident(incident)}
+                onClick={() => openModal(incident)}
                 className="bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/60 rounded-xl p-5 shadow-lg transition-all duration-200 hover:shadow-2xl flex flex-col justify-between cursor-pointer group hover:-translate-y-0.5"
               >
                 <div className="space-y-3">
@@ -498,6 +595,108 @@ export default function MyReportsPage() {
                 <p className="font-mono text-xs text-[var(--color-sand)]">
                   Latitude: {selectedIncident.location?.latitude}, Longitude: {selectedIncident.location?.longitude}
                 </p>
+              </div>
+
+              {/* Feature 15: Evidence Files */}
+              <div className="bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)] rounded-xl p-4 space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-[var(--color-bg-border)]">
+                  <span className="text-xs font-bold text-[var(--color-text-primary)] flex items-center gap-1.5">
+                    <svg className="w-4 h-4 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Incident Evidence
+                    {selectedIncident.evidence?.length > 0 && (
+                      <span className="ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-[var(--color-sand)]/20 text-[var(--color-sand)] border border-[var(--color-sand)]/30">
+                        {selectedIncident.evidence.length}
+                      </span>
+                    )}
+                  </span>
+                  {/* Upload more evidence button */}
+                  <label
+                    htmlFor="modal-evidence-upload"
+                    className={`px-3 py-1 rounded-lg text-[11px] font-semibold border cursor-pointer transition-all ${
+                      evidenceUploading
+                        ? 'opacity-50 pointer-events-none bg-[var(--color-bg-surface)] border-[var(--color-bg-border)] text-[var(--color-text-muted)]'
+                        : 'bg-[var(--color-sand)]/10 border-[var(--color-sand)]/40 text-[var(--color-sand)] hover:bg-[var(--color-sand)]/20'
+                    }`}
+                    title="Upload additional evidence"
+                  >
+                    {evidenceUploading ? 'Uploading…' : '+ Add Files'}
+                  </label>
+                  <input
+                    id="modal-evidence-upload"
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,.jpg,.jpeg,.png,.webp,.gif,.pdf"
+                    className="sr-only"
+                    onChange={handleModalEvidenceUpload}
+                    disabled={evidenceUploading}
+                  />
+                </div>
+
+                {/* Upload feedback messages */}
+                {evidenceUploadError && (
+                  <p className="text-xs text-red-400 flex items-start gap-1.5">
+                    <span className="flex-shrink-0">⚠</span>
+                    <span>{evidenceUploadError}</span>
+                  </p>
+                )}
+                {evidenceUploadSuccess && (
+                  <p className="text-xs text-emerald-400 flex items-start gap-1.5">
+                    <span className="flex-shrink-0">✓</span>
+                    <span>{evidenceUploadSuccess}</span>
+                  </p>
+                )}
+
+                {/* Evidence file list */}
+                {selectedIncident.evidence?.length > 0 ? (
+                  <div className="grid grid-cols-1 gap-2">
+                    {selectedIncident.evidence.map((ev) => {
+                      const isImage = ev.mimetype?.startsWith('image/');
+                      const evidenceUrl = getEvidenceUrl(selectedIncident._id, ev.filename);
+                      return (
+                        <a
+                          key={ev._id || ev.filename}
+                          href={evidenceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/40 transition-all group"
+                        >
+                          <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)] flex items-center justify-center">
+                            {isImage ? (
+                              <img
+                                src={evidenceUrl}
+                                alt={ev.originalName}
+                                className="w-full h-full object-cover"
+                                onError={(e) => { e.target.style.display = 'none'; }}
+                              />
+                            ) : (
+                              <svg className="w-5 h-5 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-[var(--color-text-primary)] group-hover:text-[var(--color-sand)] truncate transition-colors" title={ev.originalName}>
+                              {ev.originalName}
+                            </p>
+                            <p className="text-[11px] text-[var(--color-text-muted)]">
+                              {(ev.size / 1024 / 1024).toFixed(2)} MB · {ev.mimetype?.split('/')[1]?.toUpperCase()}
+                              {ev.uploadedAt && ` · ${new Date(ev.uploadedAt).toLocaleDateString()}`}
+                            </p>
+                          </div>
+                          <svg className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-[var(--color-sand)] flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-[var(--color-text-muted)] italic">
+                    No evidence files attached. Click "+ Add Files" to upload photos or documents.
+                  </p>
+                )}
               </div>
 
               {/* Report Metadata */}

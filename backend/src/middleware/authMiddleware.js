@@ -12,17 +12,25 @@ import jwt from 'jsonwebtoken';
  */
 export const protect = (req, res, next) => {
   try {
-    // ── 1. Extract token from Authorization header ─────────────────────────
+    // ── 1. Extract token from Authorization header OR query string ─────────
+    // Query-string token is accepted ONLY for evidence file serving
+    // (browser <img src> and direct download links cannot send custom headers)
     const authHeader = req.headers.authorization;
+    let token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1]; // "Bearer <token>" → "<token>"
+    } else if (req.query.token && typeof req.query.token === 'string') {
+      // Allow token via ?token= query param for file serving endpoints
+      token = req.query.token;
+    }
+
+    if (!token) {
       return res.status(401).json({
         success: false,
         message: 'Authentication required. Please log in.',
       });
     }
-
-    const token = authHeader.split(' ')[1]; // "Bearer <token>" → "<token>"
 
     // ── 2. Verify token signature and expiry ──────────────────────────────
     const decoded = jwt.verify(token, process.env.JWT_SECRET);

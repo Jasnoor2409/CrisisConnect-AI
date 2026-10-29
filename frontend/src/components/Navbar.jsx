@@ -11,109 +11,103 @@ export default function Navbar() {
     navigate('/login');
   };
 
-  // Helper for role badge colors matching Deep Forest + Warm Sand palette
+  // Role badge colors matching Deep Forest + Warm Sand palette
   const getRoleBadgeStyle = (role) => {
     switch (role) {
       case 'admin':
-        return {
-          bg: 'rgba(214, 158, 61, 0.18)',
-          border: 'rgba(214, 158, 61, 0.45)',
-          text: '#e6b252',
-          label: 'ADMIN',
-        };
+        return { bg: 'rgba(214,158,61,0.18)', border: 'rgba(214,158,61,0.45)', text: '#e6b252', label: 'ADMIN' };
       case 'responder':
-        return {
-          bg: 'rgba(61, 139, 90, 0.22)',
-          border: 'rgba(61, 139, 90, 0.5)',
-          text: '#72be8c',
-          label: 'RESPONDER',
-        };
+        return { bg: 'rgba(61,139,90,0.22)', border: 'rgba(61,139,90,0.5)', text: '#72be8c', label: 'RESPONDER' };
       default:
-        return {
-          bg: 'rgba(216, 199, 167, 0.15)',
-          border: 'rgba(216, 199, 167, 0.35)',
-          text: 'var(--color-sand)',
-          label: 'CITIZEN',
-        };
+        return { bg: 'rgba(216,199,167,0.15)', border: 'rgba(216,199,167,0.35)', text: 'var(--color-sand)', label: 'CITIZEN' };
     }
   };
 
   const roleStyle = user ? getRoleBadgeStyle(user.role) : null;
 
+  // Active link style helper
+  const linkCls = (path) =>
+    `px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+      location.pathname === path
+        ? 'bg-[var(--color-bg-elevated)] text-[var(--color-sand)] border border-[var(--color-sand)]/40 shadow-sm'
+        : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)] border border-transparent'
+    }`;
+
+  // Primary "report incident" link style
+  const primaryLinkCls = (path) =>
+    `px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+      location.pathname === path
+        ? 'bg-[var(--color-sand)] text-[#0c1612] shadow-sm font-bold'
+        : 'bg-[var(--color-primary)]/15 text-[var(--color-sand)] hover:bg-[var(--color-primary)]/25 border border-[var(--color-primary)]/30'
+    }`;
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-[var(--color-bg-border)] bg-[var(--color-bg-surface)]/95 backdrop-blur-md">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 h-16 flex items-center justify-between">
+
         {/* Brand Logo */}
-        <Link to={isAuthenticated ? '/report-incident' : '/login'} className="flex items-center gap-3 group">
+        <Link to={isAuthenticated ? '/' : '/login'} className="flex items-center gap-3 group">
           <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)]/20 border border-[var(--color-primary)]/40 flex items-center justify-center text-[var(--color-primary)] font-bold transition-all duration-200 group-hover:bg-[var(--color-primary)]/30">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 10V3L4 14h7v7l9-11h-7z"
-              />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <div className="flex flex-col">
-            <span className="font-semibold tracking-wide text-sm sm:text-base text-[var(--color-text-primary)]">
-              CrisisConnect <span className="text-[var(--color-sand)] font-bold">AI</span>
-            </span>
-          </div>
+          <span className="font-semibold tracking-wide text-sm sm:text-base text-[var(--color-text-primary)]">
+            CrisisConnect <span className="text-[var(--color-sand)] font-bold">AI</span>
+          </span>
         </Link>
 
-        {/* Navigation Actions */}
-        <nav className="flex items-center gap-2 sm:gap-4">
+        {/* Navigation */}
+        <nav className="flex items-center gap-1.5 sm:gap-2">
           {isAuthenticated && user ? (
             <>
-              {/* Report Incident Navigation Button */}
-              <Link
-                to="/report-incident"
-                className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
-                  location.pathname === '/report-incident'
-                    ? 'bg-[var(--color-sand)] text-[#0c1612] shadow-sm font-bold'
-                    : 'bg-[var(--color-primary)]/15 text-[var(--color-sand)] hover:bg-[var(--color-primary)]/25 border border-[var(--color-primary)]/30'
-                }`}
-              >
+              {/* ── Citizen-level links ── */}
+              <Link to="/report-incident" className={primaryLinkCls('/report-incident')}>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-                <span>Report Incident</span>
+                <span>Report</span>
               </Link>
 
-              {/* My Reports Navigation Button */}
-              <Link
-                to="/my-reports"
-                className={`px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
-                  location.pathname === '/my-reports'
-                    ? 'bg-[var(--color-bg-elevated)] text-[var(--color-sand)] border border-[var(--color-sand)]/40 shadow-sm'
-                    : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-bg-elevated)] border border-transparent'
-                }`}
-              >
-                <svg className="w-4 h-4 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <Link to="/my-reports" className={linkCls('/my-reports')}>
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <span>My Reports</span>
               </Link>
 
-              {/* User Role Badge */}
+              {/* ── Responder-only link ── */}
+              {(user.role === 'responder' || user.role === 'admin') && (
+                <Link to="/responder" className={linkCls('/responder')}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span className="hidden sm:inline">Responder</span>
+                  <span className="sm:hidden">📋</span>
+                </Link>
+              )}
+
+              {/* ── Admin-only link ── */}
+              {user.role === 'admin' && (
+                <Link to="/admin" className={linkCls('/admin')}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span className="hidden sm:inline">Admin</span>
+                  <span className="sm:hidden">🛡️</span>
+                </Link>
+              )}
+
+
+              {/* Role badge */}
               <div
-                className="hidden sm:flex items-center px-2.5 py-1 rounded-full text-xs font-bold tracking-wider border"
-                style={{
-                  backgroundColor: roleStyle.bg,
-                  borderColor: roleStyle.border,
-                  color: roleStyle.text,
-                }}
+                className="hidden md:flex items-center px-2.5 py-1 rounded-full text-xs font-bold tracking-wider border"
+                style={{ backgroundColor: roleStyle.bg, borderColor: roleStyle.border, color: roleStyle.text }}
               >
                 {roleStyle.label}
               </div>
 
-              {/* Clickable User Name Navigating to /profile */}
+              {/* User profile */}
               <Link
                 to="/profile"
                 className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 border ${
@@ -126,12 +120,12 @@ export default function Navbar() {
                 <svg className="w-4 h-4 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                 </svg>
-                <span className="truncate max-w-[120px] sm:max-w-[160px] underline-offset-2 hover:underline">
+                <span className="truncate max-w-[100px] sm:max-w-[140px] hover:underline underline-offset-2">
                   {user.name}
                 </span>
               </Link>
 
-              {/* Single Navbar Logout Button */}
+              {/* Logout */}
               <button
                 onClick={handleLogout}
                 className="px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--color-text-secondary)] hover:text-red-300 hover:bg-red-950/40 border border-transparent hover:border-red-800/40 transition-all duration-200 flex items-center gap-1.5 cursor-pointer"
@@ -140,7 +134,7 @@ export default function Navbar() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                <span>Logout</span>
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </>
           ) : (

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createIncident } from '../services/incidentService.js';
+import { createIncident, uploadEvidence } from '../services/incidentService.js';
 import MapPicker from '../components/MapPicker.jsx';
 
 const CATEGORIES = [
@@ -37,6 +37,13 @@ function prepareRecommendationsForDisplay(recommendations = [], maxLimit = 10) {
   return result;
 }
 
+// Maximum file size: 10 MB (must match backend)
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const MAX_FILES = 5;
+const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf'];
+const ALLOWED_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.pdf'];
+
 export default function ReportIncidentPage() {
   const navigate = useNavigate();
 
@@ -52,6 +59,13 @@ export default function ReportIncidentPage() {
     },
   });
 
+  // ── Evidence Upload State ────────────────────────────────────────────────────
+  const [selectedFiles, setSelectedFiles] = useState([]);        // { file, preview, id } objects
+  const [fileErrors, setFileErrors] = useState([]);              // validation error strings
+  const [uploadProgress, setUploadProgress] = useState(null);   // 0-100 or null
+  const [uploadedEvidence, setUploadedEvidence] = useState([]); // from API response
+  const fileInputRef = useRef(null);
+
   const [fieldErrors, setFieldErrors] = useState({});
   const [serverError, setServerError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,6 +78,51 @@ export default function ReportIncidentPage() {
     if (fieldErrors[name]) setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     if (serverError) setServerError('');
   };
+
+  // ── Evidence file selection handler ──────────────────────────────────────────
+  const handleFileSelect = useCallback((e) => {
+    const incoming = Array.from(e.target.files || []);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    const errors = [];
+    const valid = [];
+
+    incoming.forEach((file) => {
+      const ext = '.' + file.name.split('.').pop().toLowerCase();
+      if (!ALLOWED_TYPES.includes(file.type) || !ALLOWED_EXTS.includes(ext)) {
+        errors.push(`"${file.name}" — invalid type. Allowed: JPEG, PNG, WebP, GIF, PDF.`);
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        errors.push(`"${file.name}" — file too large (max ${MAX_FILE_SIZE_MB} MB).`);
+        return;
+      }
+      valid.push(file);
+    });
+
+    setFileErrors(errors);
+    setSelectedFiles((prev) => {
+      const combined = [...prev, ...valid.map((file) => ({
+        file,
+        id: `${file.name}-${file.size}-${Date.now()}-${Math.random()}`,
+        preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+      }))];
+      // Enforce max files limit
+      if (combined.length > MAX_FILES) {
+        setFileErrors((e) => [...e, `Maximum ${MAX_FILES} files allowed. Extra files were dropped.`]);
+        return combined.slice(0, MAX_FILES);
+      }
+      return combined;
+    });
+  }, []);
+
+  // ── Remove a single selected file ────────────────────────────────────────────
+  const handleRemoveFile = useCallback((fileId) => {
+    setSelectedFiles((prev) => {
+      const removed = prev.find((f) => f.id === fileId);
+      if (removed?.preview) URL.revokeObjectURL(removed.preview);
+      return prev.filter((f) => f.id !== fileId);
+    });
+  }, []);
 
   // Location change handler from MapPicker
   const handleLocationChange = (newLocation) => {
@@ -95,7 +154,7 @@ export default function ReportIncidentPage() {
     return errors;
   };
 
-  // Submit handler
+  // Submit handler — 2-step: create incident, then upload evidence
   const handleSubmit = async (e) => {
     e.preventDefault();
     setServerError('');
@@ -108,12 +167,38 @@ export default function ReportIncidentPage() {
 
     setIsSubmitting(true);
     try {
+      // Step 1: Create the incident (JSON)
       const result = await createIncident(formData);
-      if (result.success && result.incident) {
-        setSubmittedIncident(result.incident);
-      } else {
+      if (!result.success || !result.incident) {
         setServerError(result.message || 'Failed to submit incident report.');
+        return;
       }
+
+      const createdIncident = result.incident;
+
+      // Step 2: Upload evidence files if any were selected
+      if (selectedFiles.length > 0) {
+        setUploadProgress(0);
+        try {
+          const evidenceResult = await uploadEvidence(
+            createdIncident.id,
+            selectedFiles.map((f) => f.file),
+            (pct) => setUploadProgress(pct)
+          );
+          if (evidenceResult.success) {
+            setUploadedEvidence(evidenceResult.evidence || []);
+          }
+        } catch (uploadErr) {
+          // Evidence upload failure is non-fatal — incident was created successfully
+          console.warn('Evidence upload failed (non-fatal):', uploadErr.message);
+          setServerError(
+            `Incident reported successfully, but evidence upload failed: ${uploadErr.response?.data?.message || uploadErr.message}`
+          );
+        }
+        setUploadProgress(null);
+      }
+
+      setSubmittedIncident(createdIncident);
     } catch (error) {
       if (error.response?.data?.errors) {
         setFieldErrors(error.response.data.errors);
@@ -129,6 +214,8 @@ export default function ReportIncidentPage() {
 
   // Reset form to report another incident
   const handleResetForm = () => {
+    // Revoke any object URLs to avoid memory leaks
+    selectedFiles.forEach((f) => { if (f.preview) URL.revokeObjectURL(f.preview); });
     setSubmittedIncident(null);
     setFormData({
       title: '',
@@ -143,6 +230,10 @@ export default function ReportIncidentPage() {
     });
     setFieldErrors({});
     setServerError('');
+    setSelectedFiles([]);
+    setFileErrors([]);
+    setUploadProgress(null);
+    setUploadedEvidence([]);
   };
 
   // Render Success Card State
@@ -227,12 +318,11 @@ export default function ReportIncidentPage() {
                     <span className="text-[var(--color-text-muted)] uppercase font-semibold text-[10px] block">
                       AI Assessed Severity (vs Reported: {submittedIncident.severity})
                     </span>
-                    <span className={`inline-block font-bold text-sm px-2.5 py-0.5 rounded border mt-0.5 ${
-                      submittedIncident.aiClassification.severity === 'Critical' ? 'bg-red-950/70 text-red-300 border-red-800' :
-                      submittedIncident.aiClassification.severity === 'High' ? 'bg-amber-950/60 text-amber-300 border-amber-800' :
-                      submittedIncident.aiClassification.severity === 'Medium' ? 'bg-yellow-950/60 text-yellow-300 border-yellow-800' :
-                      'bg-emerald-950/60 text-emerald-300 border-emerald-800'
-                    }`}>
+                    <span className={`inline-block font-bold text-sm px-2.5 py-0.5 rounded border mt-0.5 ${submittedIncident.aiClassification.severity === 'Critical' ? 'bg-red-950/70 text-red-300 border-red-800' :
+                        submittedIncident.aiClassification.severity === 'High' ? 'bg-amber-950/60 text-amber-300 border-amber-800' :
+                          submittedIncident.aiClassification.severity === 'Medium' ? 'bg-yellow-950/60 text-yellow-300 border-yellow-800' :
+                            'bg-emerald-950/60 text-emerald-300 border-emerald-800'
+                      }`}>
                       {submittedIncident.aiClassification.severity || submittedIncident.severity} Priority
                     </span>
                   </div>
@@ -293,6 +383,26 @@ export default function ReportIncidentPage() {
                 Coordinates: {submittedIncident.location?.latitude}, {submittedIncident.location?.longitude}
               </p>
             </div>
+
+            {/* Uploaded Evidence Summary */}
+            {uploadedEvidence.length > 0 && (
+              <div className="pt-2 border-t border-[var(--color-bg-border)]">
+                <span className="text-xs text-[var(--color-text-muted)] uppercase font-semibold block mb-2">Uploaded Evidence</span>
+                <div className="flex flex-wrap gap-2">
+                  {uploadedEvidence.map((ev, idx) => (
+                    <div key={idx} className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)] text-[11px]">
+                      <svg className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span className="text-[var(--color-text-primary)] truncate max-w-[160px]" title={ev.originalName}>{ev.originalName}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-[11px] text-emerald-400 mt-1.5">
+                  ✓ {uploadedEvidence.length} file{uploadedEvidence.length !== 1 ? 's' : ''} uploaded and attached to this incident.
+                </p>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -366,9 +476,8 @@ export default function ReportIncidentPage() {
                   value={formData.title}
                   onChange={handleChange}
                   disabled={isSubmitting}
-                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs sm:text-sm bg-[var(--color-bg-elevated)] border text-[var(--color-text-primary)] focus:outline-none transition-all ${
-                    fieldErrors.title ? 'border-red-700 focus:border-red-500' : 'border-[var(--color-bg-border)] focus:border-[var(--color-sand)]'
-                  }`}
+                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs sm:text-sm bg-[var(--color-bg-elevated)] border text-[var(--color-text-primary)] focus:outline-none transition-all ${fieldErrors.title ? 'border-red-700 focus:border-red-500' : 'border-[var(--color-bg-border)] focus:border-[var(--color-sand)]'
+                    }`}
                 />
                 {fieldErrors.title && <p className="text-xs text-red-400">{fieldErrors.title}</p>}
               </div>
@@ -414,11 +523,10 @@ export default function ReportIncidentPage() {
                             if (fieldErrors.severity) setFieldErrors((prev) => ({ ...prev, severity: '' }));
                           }}
                           disabled={isSubmitting}
-                          className={`py-2 px-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer text-center ${
-                            isSelected
+                          className={`py-2 px-2 rounded-lg text-xs font-semibold border transition-all cursor-pointer text-center ${isSelected
                               ? `${s.color} ring-2 ring-offset-1 ring-offset-[var(--color-bg-surface)] ring-[var(--color-sand)]`
                               : 'bg-[var(--color-bg-elevated)] text-[var(--color-text-secondary)] border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/50'
-                          }`}
+                            }`}
                         >
                           {s.level}
                         </button>
@@ -442,11 +550,149 @@ export default function ReportIncidentPage() {
                   value={formData.description}
                   onChange={handleChange}
                   disabled={isSubmitting}
-                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs sm:text-sm bg-[var(--color-bg-elevated)] border text-[var(--color-text-primary)] focus:outline-none transition-all ${
-                    fieldErrors.description ? 'border-red-700 focus:border-red-500' : 'border-[var(--color-bg-border)] focus:border-[var(--color-sand)]'
-                  }`}
+                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs sm:text-sm bg-[var(--color-bg-elevated)] border text-[var(--color-text-primary)] focus:outline-none transition-all ${fieldErrors.description ? 'border-red-700 focus:border-red-500' : 'border-[var(--color-bg-border)] focus:border-[var(--color-sand)]'
+                    }`}
                 />
                 {fieldErrors.description && <p className="text-xs text-red-400">{fieldErrors.description}</p>}
+              </div>
+
+              {/* ── Feature 15: Evidence Upload Section ────────────────────────── */}
+              <div className="space-y-2 pt-1">
+                <div className="flex items-center gap-2 border-b border-[var(--color-bg-border)] pb-2">
+                  <svg className="w-4 h-4 text-[var(--color-sand)] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                    Upload Incident Photos / Evidence
+                    <span className="ml-1 text-[var(--color-text-muted)] font-normal normal-case tracking-normal">
+                      (optional · up to {MAX_FILES} files · max {MAX_FILE_SIZE_MB} MB each)
+                    </span>
+                  </span>
+                </div>
+
+                {/* Drop-zone / file picker button */}
+                <div
+                  className={`relative border-2 border-dashed rounded-xl transition-all ${isSubmitting
+                      ? 'opacity-50 pointer-events-none border-[var(--color-bg-border)]'
+                      : 'border-[var(--color-bg-border)] hover:border-[var(--color-sand)]/60 cursor-pointer'
+                    } bg-[var(--color-bg-elevated)] p-4`}
+                  onClick={() => !isSubmitting && fileInputRef.current?.click()}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label="Upload evidence files"
+                >
+                  <input
+                    id="evidence-upload"
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,.jpg,.jpeg,.png,.webp,.gif,.pdf"
+                    className="sr-only"
+                    onChange={handleFileSelect}
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <div className="w-10 h-10 rounded-full bg-[var(--color-sand)]/10 border border-[var(--color-sand)]/30 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--color-text-primary)]">
+                        Click to select photos or evidence files
+                      </p>
+                      <p className="text-[11px] text-[var(--color-text-muted)] mt-0.5">
+                        JPEG, PNG, WebP, GIF, PDF · Max {MAX_FILE_SIZE_MB} MB per file · Up to {MAX_FILES} files
+                      </p>
+                    </div>
+                    {selectedFiles.length < MAX_FILES && (
+                      <span className="text-[11px] px-3 py-1 rounded-full bg-[var(--color-sand)]/10 border border-[var(--color-sand)]/30 text-[var(--color-sand)] font-semibold">
+                        {selectedFiles.length === 0 ? 'No files selected' : `${selectedFiles.length} of ${MAX_FILES} files selected — click to add more`}
+                      </span>
+                    )}
+                    {selectedFiles.length >= MAX_FILES && (
+                      <span className="text-[11px] px-3 py-1 rounded-full bg-amber-950/50 border border-amber-800/50 text-amber-300 font-semibold">
+                        Maximum {MAX_FILES} files reached
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* File validation errors */}
+                {fileErrors.length > 0 && (
+                  <div className="space-y-1">
+                    {fileErrors.map((err, i) => (
+                      <p key={i} className="text-xs text-red-400 flex items-start gap-1.5">
+                        <span className="flex-shrink-0 mt-0.5">⚠</span>
+                        <span>{err}</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+
+                {/* Selected file list with previews and remove buttons */}
+                {selectedFiles.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2">
+                    {selectedFiles.map((sf) => (
+                      <div
+                        key={sf.id}
+                        className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[var(--color-bg-surface)] border border-[var(--color-bg-border)] group"
+                      >
+                        {/* Thumbnail or file icon */}
+                        <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)] flex items-center justify-center">
+                          {sf.preview ? (
+                            <img src={sf.preview} alt={sf.file.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <svg className="w-5 h-5 text-[var(--color-sand)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                          )}
+                        </div>
+
+                        {/* File info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-[var(--color-text-primary)] truncate" title={sf.file.name}>
+                            {sf.file.name}
+                          </p>
+                          <p className="text-[11px] text-[var(--color-text-muted)]">
+                            {(sf.file.size / 1024 / 1024).toFixed(2)} MB · {sf.file.type.split('/')[1]?.toUpperCase()}
+                          </p>
+                        </div>
+
+                        {/* Remove button */}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(sf.id)}
+                          disabled={isSubmitting}
+                          className="w-7 h-7 rounded-lg flex items-center justify-center text-[var(--color-text-muted)] hover:text-red-400 hover:bg-red-950/40 border border-transparent hover:border-red-800/50 transition-all cursor-pointer disabled:opacity-50 flex-shrink-0"
+                          aria-label={`Remove ${sf.file.name}`}
+                          title="Remove file"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Upload progress bar (shown during submission) */}
+                {uploadProgress !== null && (
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-[var(--color-text-muted)]">Uploading evidence…</span>
+                      <span className="font-bold text-[var(--color-sand)]">{uploadProgress}%</span>
+                    </div>
+                    <div className="w-full h-1.5 rounded-full bg-[var(--color-bg-elevated)] border border-[var(--color-bg-border)] overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-[var(--color-sand)] transition-all duration-300"
+                        style={{ width: `${uploadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
